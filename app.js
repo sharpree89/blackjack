@@ -17,10 +17,9 @@ var activePlayer = 0;
 createDeck();
 shuffleDeck();
 
-// create a full deck at the beginning of each game
-// return the deck
+// create a full deck
 function createDeck() {
-  console.log('Creating the deck...');
+  console.log('Creating deck...');
   var suites = ['diamonds', 'spades', 'hearts', 'clubs'];
   var values = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'jack', 'queen', 'king', 'ace'];
   for (var i = 0; i < values.length; i++) {
@@ -32,7 +31,6 @@ function createDeck() {
 }
 
 // shuffle the deck
-// return the deck
 function shuffleDeck() {
   var temp = null;
   for (var i = deck.length - 1; i > 0; i --) {
@@ -41,18 +39,14 @@ function shuffleDeck() {
     deck[i] = deck[r]
     deck[r] = temp
   }
-  console.log('the deck has been shuffled');
-  console.log(deck);
+  console.log('Shuffling deck...');
   return deck;
 }
 
 // select a card from the deck
 // remove the card from the deck
 // update the card image
-// add the card's value to player's score
-// return the card
-function selectCard() {
-
+function hitMe() {
   var counter = deck.length;
   console.log('Selecting a card...');
 
@@ -61,44 +55,59 @@ function selectCard() {
     var index = deck.indexOf(card);
     if (index !== -1) {
         deck.splice(index, 1);
-        console.log(card + ' has been removed from the deck.');
         counter = deck.length;
         document.querySelector('.counter').textContent = counter + ' cards remaining';
     }
     // change the src of the card image to the correct card
-    document.querySelector('.card').src = card + '.png';
+    document.querySelector('.card-' + activePlayer).src = card + '.png';
     // update player's score
     updateScore();
     return card;
   } else {
     console.log('Thats the end of the deck!');
-    document.querySelector('.card').src = 'back.png';
+    document.querySelector('.card-' + activePlayer).src = 'back.png';
   }
 };
 
 // update player's score
+// handle scoring logic
 function updateScore() {
-
-  // if the card contains 10, jack, queen, or king, add 10 to the player's score
+  // if the card is a 10, jack, queen, or king, add 10 to the player's score
   if (card.indexOf('jack') !== -1 || card.indexOf('queen') !== -1 || card.indexOf('king') !== -1 || card.indexOf('10') !== -1) {
-    scores[0] += 10;
+    scores[activePlayer] += 10;
     console.log(card);
-    document.querySelector('.player-score').textContent = scores[0];
+    document.querySelector('.score-' + activePlayer).textContent = scores[activePlayer];
 
   // if the card is an ace, add 11 to the player's score
   } else if (card.indexOf('ace') !== -1) {
-    scores[0] += 11;
+    scores[activePlayer] += 11;
     console.log(card);
-    document.querySelector('.player-score').textContent = scores[0];
+    document.querySelector('.score-' + activePlayer).textContent = scores[activePlayer];
 
-  // if the card contains a single digit number, add that number to the player's score
+  // if the card is a single digit number, add that number to the player's score
   } else if (card[1] === "_") {
       var score = Number(card[0]);
-      scores[0] += score;
+      scores[activePlayer] += score;
       console.log(card);
-      document.querySelector('.player-score').textContent = scores[0];
+      document.querySelector('.score-' + activePlayer).textContent = scores[activePlayer];
+  }
+
+  if (scores[activePlayer] > 21) {
+    document.querySelector('.score-' + activePlayer).textContent = scores[activePlayer] + " - Game Over";
+  } else if (scores[activePlayer] === 21) {
+    document.querySelector('.score-' + activePlayer).textContent = scores[activePlayer] + " - Congratulations!";
   }
 };
 
+
+function nextPlayer() {
+  console.log('Next player\'s turn!');
+  // If the activePlayer is 0, then change activePlayer to 1. otherwise activePlayer is 1 and should be changed to 0. ? means then, : means else
+  activePlayer === 0 ? activePlayer = 1 : activePlayer = 0;
+};
+
 // when the Hit Me button is clicked, select a new card
-document.querySelector('.btn-hit').addEventListener('click', selectCard);
+document.querySelector('.btn-hit').addEventListener('click', hitMe);
+
+// when the Stand button is clicked, it is the next player's turn
+document.querySelector('.btn-stand').addEventListener('click', nextPlayer);
